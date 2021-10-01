@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>client side ejs compiled with express middleware</title>
+</head>
+
+<body>
+  <% if (user) { %>
+    <div id="greeting">
+      Hello, <%= user.name %>
+      <a href="/logout">ログアウト</a>
+    </div>
+  <% } else { %>
+    <div>
+      <a href="/login">ログイン</a>
+      <a href="/signup">新規会員登録</a>
+    </div>
+  <% } %>
+  <form method="post" action="/status">
+    <div>
+      <input name="body" type="text" placeholder="つぶやき" />
+    </div>
+    <div>
+      <button type="submit">
+        Post
+      </button>
+    </div>
+  </form>
+</body>
+
+</html>
