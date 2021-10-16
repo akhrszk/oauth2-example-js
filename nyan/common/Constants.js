@@ -1,5 +1,6 @@
 module.exports = Object.freeze({
   PORT: process.env.PORT ?? 3000,
+  SESSION_SECRET: process.env.SESSION_SECRET ?? 'secret',
   TSUBUYAKI_OAUTH_LOGIN_URL:
     process.env.TSUBUYAKI_OAUTH_LOGIN_URL ?? 'http://localhost:9001/login',
   TSUBUYAKI_OAUTH_TOKEN_URL:

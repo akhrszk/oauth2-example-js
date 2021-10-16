@@ -12,6 +12,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(50),
         allowNull: false
       },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       isUsed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

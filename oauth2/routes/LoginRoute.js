@@ -26,6 +26,7 @@ router.post('/', async (req, res) => {
   if (clientId && redirectUri && responseType === 'code') {
     const code = await GenerateAuthorizationCodeUsecase.execute({
       clientName: clientId,
+      user,
       redirectUri
     })
     const query =

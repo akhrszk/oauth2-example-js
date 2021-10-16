@@ -4,5 +4,6 @@ module.exports = Object.freeze({
   DB_DATABASE: process.env.DB_DATABASE ?? 'tsubuyaki',
   DB_USERNAME: process.env.DB_USERNAME ?? 'root',
   DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_HOST: process.env.DB_HOST ?? '127.0.0.1'
+  DB_HOST: process.env.DB_HOST ?? '127.0.0.1',
+  ACCESS_TOKEN_EXPIRES_IN: 30 * 60 // access_tokenの期限は30分
 })

@@ -18,13 +18,11 @@ app.use(
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 
-app.get('/api', (req, res) => {
-  res.send('Hello World!')
-})
 app.use('/login', require('./routes/LoginRoute'))
 app.use('/logout', require('./routes/LogoutRoute'))
 app.use('/signup', require('./routes/SignupRoute'))
 app.use('/status', require('./routes/StatusRoute'))
+app.use('/api/status', require('./routes/api/StatusRoute'))
 app.use('/', require('./routes/IndexRoute'))
 
 app.listen(PORT, () => {

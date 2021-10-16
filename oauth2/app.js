@@ -21,8 +21,10 @@ app.set('view engine', 'ejs')
 
 app.use(async (req, res, next) => {
   const userId = req.session.loggedInUserId
-  const user = await AuthenticateUsecase.execute({ userId })
-  req.authenticatedUser = user
+  if (userId) {
+    const user = await AuthenticateUsecase.execute({ userId })
+    req.authenticatedUser = user
+  }
   next()
 })
 

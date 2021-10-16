@@ -27,11 +27,13 @@ exports.execute = async (params) => {
   const [{ token: accessToken }, { token: refreshToken }] = await Promise.all([
     models.AccessToken.create({
       clientId: client.id,
-      token: generateAccessToken()
+      token: generateAccessToken(),
+      userId: found.userId
     }),
     models.RefreshToken.create({
       clientId: client.id,
-      token: generateRefreshToken()
+      token: generateRefreshToken(),
+      userId: found.userId
     })
   ])
   found.isUsed = true

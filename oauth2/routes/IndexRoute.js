@@ -5,18 +5,10 @@ const RevokeAccessTokenUsecase = require('../usecase/RevokeAccessTokenUsecase')
 
 const router = express.Router()
 
-router.get('/', async (req, res) => {
-  const user = req.authenticatedUser
-  let clients = []
-  if (user) {
-    clients = await ListClientsUsecase.execute(user)
-  }
-  res.render('index', { authenticatedUser: user, clients })
-})
-
+/* 内部向けAPI */
 router.post('/introspection', async (req, res) => {
   const { token } = req.body
-  const introspection = await IntrospectionUsecase.execute(token)
+  const introspection = await IntrospectionUsecase.execute({ token })
   if (introspection) {
     res.json({
       active: true,
@@ -34,6 +26,15 @@ router.post('/revoke', async (req, res) => {
   await RevokeAccessTokenUsecase.execute({ accessToken, refreshToken })
   res.status(201)
   res.send()
+})
+
+router.get('/', async (req, res) => {
+  const user = req.authenticatedUser
+  let clients = []
+  if (user) {
+    clients = await ListClientsUsecase.execute(user)
+  }
+  res.render('index', { authenticatedUser: user, clients })
 })
 
 module.exports = router

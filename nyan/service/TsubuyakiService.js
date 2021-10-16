@@ -10,7 +10,7 @@ const {
 } = require('../common/Constants')
 
 class TsubuyakiService {
-  constructor() { }
+  constructor() {}
 
   get oauthLoginUrl() {
     const query = querystring.stringify({

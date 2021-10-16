@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>client side ejs compiled with express middleware</title>
-  </head>
-  <body>
-    <div>ฅ•ω•ฅﾆｬｰﾝ</div>
-    <div>
-      <a href="<%= oauth.tsubuyaki %>">つぶやきったーでログイン</a>
-    </div>
-    <div>
-      <button>にゃーん</button>
-    </div>
-  </body>
+
+<head>
+  <title>client side ejs compiled with express middleware</title>
+  <script src='/js/nyan.js'></script>
+</head>
+
+<body>
+  <div>ฅ•ω•ฅﾆｬｰﾝ</div>
+  <div>
+    <a href="<%= oauth.tsubuyaki %>">つぶやきったーでログイン</a>
+  </div>
+  <div>
+    <button onclick="nyan('にゃーん')">にゃーん</button>
+  </div>
+</body>
+
 </html>

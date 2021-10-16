@@ -7,7 +7,6 @@ router.get('/', (req, res) => {
   res.render('signup')
 })
 router.post('/', async (req, res) => {
-  console.log(req.body)
   await SaveUserUsecase.execute(req.body)
   res.redirect('/')
 })

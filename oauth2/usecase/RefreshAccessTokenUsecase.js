@@ -15,7 +15,8 @@ exports.execute = async (params) => {
   }
   const { token: accessToken } = await models.AccessToken.create({
     clientId: client.id,
-    token: generateAccessToken()
+    token: generateAccessToken(),
+    userId: found.userId
   })
   return { accessToken }
 }

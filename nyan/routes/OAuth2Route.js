@@ -11,8 +11,10 @@ router.get('/callback', async (req, res) => {
   }
   const tsubuyakiService = TsubuyakiService.sharedInstance
   const data = await tsubuyakiService.getAccessToken(code)
-  // TODO Sessionなどにaccess_tokenを保存
-  console.log(data)
+  req.session.tsubuyakiAccessToken = data['access_token']
+  req.session.tsubuyakiRefreshToken = data['refresh_token']
+  req.session.tsubuyakiAccessTokenExpiresAt =
+    new Date().getTime() + data['expires_in']
   res.redirect('/')
 })
 

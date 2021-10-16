@@ -1,6 +1,7 @@
 const express = require('express')
 const GenerateAccessTokenUsecase = require('../usecase/GenerateAccessTokenUsecase')
 const RefreshAccessTokenUsecase = require('../usecase/RefreshAccessTokenUsecase')
+const { ACCESS_TOKEN_EXPIRES_IN } = require('../common/Constants')
 
 const router = express.Router()
 
@@ -34,7 +35,7 @@ router.post('/token', async (req, res) => {
     const { accessToken, refreshToken } = tokenSet
     res.json({
       access_token: accessToken,
-      expires_in: 30 * 60, // access_tokenの期限は30分
+      expires_in: ACCESS_TOKEN_EXPIRES_IN,
       refresh_token: refreshToken
     })
   } else if (
@@ -50,7 +51,7 @@ router.post('/token', async (req, res) => {
     })
     res.json({
       access_token: accessToken,
-      expires_in: 30 * 60 // access_tokenの期限は30分
+      expires_in: ACCESS_TOKEN_EXPIRES_IN
     })
   } else {
     res.status(400)
