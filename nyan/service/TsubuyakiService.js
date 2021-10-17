@@ -35,6 +35,12 @@ class TsubuyakiService {
     return res.data
   }
 
+  async refreshAccessTokenIfNeed(refreshToken, expires) {
+    if (Date.now() > expires) {
+      return await this.refreshAccessToken(refreshToken)
+    }
+  }
+
   async refreshAccessToken(refreshToken) {
     const res = await axios.post(
       TSUBUYAKI_OAUTH_TOKEN_URL,
@@ -49,11 +55,17 @@ class TsubuyakiService {
   }
 
   async send(message, accessToken) {
-    await axios.post(
-      `${TSUBUYAKI_API_BASE_URL}/statuses`,
-      querystring.stringify({ message }),
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    )
+    try {
+      const data = await axios.post(
+        `${TSUBUYAKI_API_BASE_URL}/status`,
+        querystring.stringify({ body: message }),
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      return data
+    } catch (err) {
+      console.log(err)
+      return undefined
+    }
   }
 
   static get sharedInstance() {

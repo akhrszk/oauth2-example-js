@@ -5,13 +5,13 @@ exports.execute = async (params) => {
   const { clientName, clientSecret, refreshToken } = params
   const client = await models.Client.findOne({ where: { name: clientName } })
   if (client && client.secret !== clientSecret) {
-    throw new Error('')
+    return undefined
   }
   const found = await models.RefreshToken.findOne({
-    where: { clientId: client.id, isRevoked: false }
+    where: { clientId: client.id, token: refreshToken }
   })
-  if (found && found.token !== refreshToken) {
-    throw new Error('')
+  if (found.isRevoked) {
+    return undefined
   }
   const { token: accessToken } = await models.AccessToken.create({
     clientId: client.id,

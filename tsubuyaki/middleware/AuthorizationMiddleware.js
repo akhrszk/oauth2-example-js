@@ -29,8 +29,8 @@ const authorization = (options) => {
     }
     const { active, sub, scope } = await tokenIntrospection(token)
     if (!active && required) {
-      res.status(401)
-      res.send('Unauthorized')
+      res.status(403)
+      res.send('Forbidden')
       return
     }
     if (!active) {
@@ -38,9 +38,9 @@ const authorization = (options) => {
       return
     }
     const user = await models.User.findByPk(sub)
-    if (!user && active) {
-      res.status(401)
-      res.send('Unauthorized')
+    if (!user && required) {
+      res.status(403)
+      res.send('Forbidden')
       return
     }
     if (!user) {

@@ -44,11 +44,17 @@ router.post('/token', async (req, res) => {
     clientName &&
     clientSecret
   ) {
-    const { accessToken } = await RefreshAccessTokenUsecase.execute({
+    const result = await RefreshAccessTokenUsecase.execute({
       clientName,
       clientSecret,
       refreshToken
     })
+    if (!result) {
+      res.status(403)
+      res.send('Forbidden')
+      return
+    }
+    const { accessToken } = result
     res.json({
       access_token: accessToken,
       expires_in: ACCESS_TOKEN_EXPIRES_IN

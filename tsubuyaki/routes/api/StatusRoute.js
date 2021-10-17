@@ -9,7 +9,7 @@ router.post('/', authorization({ required: true }), async (req, res) => {
   const { body } = req.body
   if (!scope.includes('write')) {
     res.status(403)
-    res.send('403 Forbidden')
+    res.send('Forbidden')
     return
   }
   const status = await SaveStatusUsecase.execute({ user, status: { body } })
