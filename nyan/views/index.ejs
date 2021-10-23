@@ -3,17 +3,67 @@
 
 <head>
   <title>client side ejs compiled with express middleware</title>
-  <script src='/js/nyan.js'></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+  <link href="/css/index.css" rel="stylesheet" />
 </head>
 
 <body>
-  <div>ฅ•ω•ฅﾆｬｰﾝ</div>
-  <div>
-    <a href="<%= oauth.tsubuyaki %>">つぶやきったーでログイン</a>
+  <header>
+    <nav class="navbar navbar-light">
+      <a class="navbar-brand" href="/">にゃーん</a>
+      <% if (loggedIn) { %>
+        <a class="btn btn-outline-primary btn-sm btn-nav"
+          href="/logout"
+          role="button"
+        >
+          ログアウト
+        </a>
+      <% } else { %>
+        <a class="btn btn-outline-primary btn-sm btn-nav"
+          href="<%= oauth.tsubuyaki %>"
+        >
+          つぶやきったーでログイン
+        </a>
+      <% } %>
+    </nav>
+  </header>
+  <main class="content">
+    <div class="d-inline-block center text-center">
+      <h1>ฅ^•ω•^ฅ</h1>
+      <button class="btn btn-primary btn-lg" id="nyanBtn">にゃーん</button>
+    </div>
+  </main>
+  <div class="toast bottom" id="nyanToast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-body">
+      にゃーん
+    </div>
   </div>
-  <div>
-    <button onclick="nyan('にゃーん')">にゃーん</button>
-  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="/js/words.js"></script>
+  <script>
+    $("#nyanBtn").on("click", () => {
+      const word = randomWord()
+      $("#nyanToast .toast-body").text(word)
+      $("#nyanToast").toast("show")
+      <% if (loggedIn) { %>
+        send(word)
+      <% } %>
+    })
+    const send = async (message) => {
+      await fetch('/api/nyan', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `message=${encodeURIComponent(message)}`
+      })
+    }
+  </script>
 </body>
 
 </html>

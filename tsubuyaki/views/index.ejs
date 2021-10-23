@@ -3,30 +3,38 @@
 
 <head>
   <title>client side ejs compiled with express middleware</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
 </head>
 
 <body>
-  <% if (user) { %>
-    <div id="greeting">
-      Hello, <%= user.name %>
-      <a href="/logout">ログアウト</a>
+  <nav class="navbar navbar-dark bg-dark mb-4">
+    <a class="navbar-brand" href="/">つぶやきったー</a>
+    <% if (user) { %>
+      <a class="btn btn-outline-primary btn-sm btn-nav" href="/logout" role="button">ログアウト</a>
+    <% } %>
+  </nav>
+
+  <main role="main" class="container">
+    <div class="jumbotron">
+      <% if (user) { %>
+        <h1 class="display-4">Hello, <%= user.name %></h1>
+      <% } else { %>
+        <h1 class="display-4">つぶやきったー</h1>
+      <% } %>
+      <% if (user) { %>
+        <form method="post" action="/status">
+          <div>
+            <input name="body" type="text" placeholder="つぶやき" />
+            <button type="submit">Post</button>
+          </div>
+        </form>
+      <% } else { %>
+        <a class="btn btn-primary btn-lg" href="/login" role="button">ログイン</a>
+        <a class="btn btn-primary btn-lg" href="/signup" role="button">新規会員登録</a>
+      <% } %>
     </div>
-  <% } else { %>
-    <div>
-      <a href="/login">ログイン</a>
-      <a href="/signup">新規会員登録</a>
-    </div>
-  <% } %>
-  <form method="post" action="/status">
-    <div>
-      <input name="body" type="text" placeholder="つぶやき" />
-    </div>
-    <div>
-      <button type="submit">
-        Post
-      </button>
-    </div>
-  </form>
+  </main>
 </body>
 
 </html>

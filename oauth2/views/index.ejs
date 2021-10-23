@@ -1,39 +1,50 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>client side ejs compiled with express middleware</title>
-  </head>
-  <body>
-    <div>認証サーバー</div>
+
+<head>
+  <title>client side ejs compiled with express middleware</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+  <nav class="navbar navbar-dark bg-dark mb-4">
+    <a class="navbar-brand" href="/">つぶやきったー</a>
     <% if (authenticatedUser) { %>
-      <div><a href="/logout">Logout</a></div>
+      <a class="btn btn-outline-primary btn-sm btn-nav" href="/logout" role="button">ログアウト</a>
     <% } %>
-    <div>
-      <% clients.forEach(client => { %>
-        <form method="post" action="/clients/update">
-          <div><%= client.label %></div>
-          <div>Client ID: <%= client.name %></div>
-          <div>Client Secret: <%= client.secret %></div>
-          <div>
-            Redirect URI:
-            <input
-              name="redirect_uris"
-              type="text"
-              value="<%= client.RedirectUris.map(({ uri }) => uri).join(',') %>"
-            />
-          </div>
-          <div>
-            <input name="client_name" type="hidden" value="<%= client.name %>" />
-            <!-- CSRF対策 -->
-            <button>保存</button>
-          </div>
-        </form>
-      <% }) %>
+  </nav>
+  <main role="main" class="container">
+    <div class="jumbotron">
+      <h1 class="display-4">認証サーバー</h1>
+      <% if (authenticatedUser) { %>
+        <a class="btn btn-primary btn-lg" href="/clients/create" role="button">Create Client</a>
+      <% } else { %>
+        <a class="btn btn-primary btn-lg" href="/login" role="button">ログイン</a>
+      <% } %>
     </div>
-    <% if (authenticatedUser) { %>
-      <div><a href="/clients/create">Create Client</a></div>
-    <% } else { %>
-      <div><a href="/login">Login</a></div>
-    <% } %>
-  </body>
+  </main>
+  <div>
+    <% clients.forEach(client=> { %>
+      <form method="post" action="/clients/update">
+        <div>
+          <%= client.label %>
+        </div>
+        <div>Client ID: <%= client.name %></div>
+        <div>Client Secret: <%= client.secret %></div>
+        <div>
+          Redirect URI:
+          <input name="redirect_uris" type="text"
+            value="<%= client.RedirectUris.map(({ uri }) => uri).join(',') %>" />
+        </div>
+        <div>
+          <input name="client_name" type="hidden" value="<%= client.name %>" />
+          <!-- CSRF対策 -->
+          <button>保存</button>
+        </div>
+      </form>
+    <% }) %>
+  </div>
+</body>
+
 </html>

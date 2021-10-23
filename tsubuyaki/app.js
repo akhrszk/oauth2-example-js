@@ -17,6 +17,7 @@ app.use(
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
+app.use(express.static('public'))
 
 app.use('/login', require('./routes/LoginRoute'))
 app.use('/logout', require('./routes/LogoutRoute'))
