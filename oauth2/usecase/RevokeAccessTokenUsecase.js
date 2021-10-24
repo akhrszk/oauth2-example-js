@@ -5,11 +5,11 @@ exports.execute = async (params) => {
   accessToken &&
     (await models.AccessToken.update(
       { isRevoked: true },
-      { token: accessToken }
+      { where: { token: accessToken } }
     ))
   refreshToken &&
     (await models.RefreshToken.update(
       { isRevoked: true },
-      { token: refreshToken }
+      { where: { token: refreshToken } }
     ))
 }

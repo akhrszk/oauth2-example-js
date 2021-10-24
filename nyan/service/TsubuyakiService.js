@@ -2,7 +2,7 @@ const axios = require('axios')
 const querystring = require('querystring')
 const {
   TSUBUYAKI_OAUTH_LOGIN_URL,
-  TSUBUYAKI_OAUTH_TOKEN_URL,
+  TSUBUYAKI_OAUTH_BASE_URL,
   TSUBUYAKI_API_BASE_URL,
   TSUBUYAKI_CLIENT_ID,
   TSUBUYAKI_REDIRECT_URI,
@@ -23,7 +23,7 @@ class TsubuyakiService {
 
   async getAccessToken(code) {
     const res = await axios.post(
-      TSUBUYAKI_OAUTH_TOKEN_URL,
+      `${TSUBUYAKI_OAUTH_BASE_URL}/oauth2/token`,
       querystring.stringify({
         grant_type: 'authorization_code',
         code,
@@ -43,7 +43,7 @@ class TsubuyakiService {
 
   async refreshAccessToken(refreshToken) {
     const res = await axios.post(
-      TSUBUYAKI_OAUTH_TOKEN_URL,
+      `${TSUBUYAKI_OAUTH_BASE_URL}/oauth2/token`,
       querystring.stringify({
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
@@ -52,6 +52,16 @@ class TsubuyakiService {
       })
     )
     return res.data
+  }
+
+  async revokeTokens(accessToken, refreshToken) {
+    await axios.post(
+      `${TSUBUYAKI_OAUTH_BASE_URL}/revoke`,
+      querystring.stringify({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      })
+    )
   }
 
   async send(message, accessToken) {
