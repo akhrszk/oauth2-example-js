@@ -7,7 +7,7 @@ const { PORT, SESSION_SECRET } = require('./common/Constants')
 
 const app = express()
 
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(
   session({
     secret: SESSION_SECRET,

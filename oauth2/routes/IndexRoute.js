@@ -1,5 +1,5 @@
 const express = require('express')
-const ListClientsUsecase = require('../usecase/ListClientsUsecase')
+const ClientService = require('../service/ClientService')
 const IntrospectionUsecase = require('../usecase/TokenIntrospectionUsecase')
 const RevokeAccessTokenUsecase = require('../usecase/RevokeAccessTokenUsecase')
 
@@ -32,9 +32,13 @@ router.get('/', async (req, res) => {
   const user = req.authenticatedUser
   let clients = []
   if (user) {
-    clients = await ListClientsUsecase.execute(user)
+    clients = await ClientService.newInstance().findByUser(user)
   }
-  res.render('index', { authenticatedUser: user, clients })
+  res.render('index', {
+    authenticatedUser: user,
+    clients,
+    hasScope: (client, scope) => !!client.Scopes.find((v) => v.scope === scope)
+  })
 })
 
 module.exports = router

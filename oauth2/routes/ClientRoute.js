@@ -1,5 +1,5 @@
 const express = require('express')
-const ListClientsUsecase = require('../usecase/ListClientsUsecase')
+const ClientService = require('../service/ClientService')
 const CreateClientUsecase = require('../usecase/CreateClientUsecase')
 const UpdateClientUsecase = require('../usecase/UpdateClientUsecase')
 
@@ -9,7 +9,7 @@ router.get('/create', async (req, res) => {
   const user = req.authenticatedUser
   let clients = []
   if (user) {
-    clients = await ListClientsUsecase.execute(user)
+    clients = await ClientService.newInstance().findByUser(user)
   }
   res.render('clients/create', { clients })
 })
@@ -24,10 +24,21 @@ router.post('/create', async (req, res) => {
 })
 
 router.post('/update', async (req, res) => {
-  const { client_name: clientName, redirect_uris: redirectUris } = req.body
+  const {
+    client_name: clientName,
+    redirect_uris: redirectUris,
+    scope
+  } = req.body
   await UpdateClientUsecase.execute({
     clientName,
-    redirectUris: redirectUris.split(',')
+    redirectUris: (() => {
+      // 空文字排除
+      const arr = redirectUris.split(',').filter((v) => !!v)
+      // 重複排除
+      const set = new Set(arr)
+      return [...set]
+    })(),
+    scopes: scope
   })
   res.redirect('/')
 })

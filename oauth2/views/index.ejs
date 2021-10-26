@@ -37,6 +37,12 @@
           <input name="redirect_uris" type="text"
             value="<%= client.RedirectUris.map(({ uri }) => uri).join(',') %>" />
         </div>
+        <div>Scope:
+          <input type="checkbox" id="scopeRead" name="scope" value="read" <%= hasScope(client, 'read') ? 'checked' : '' %> />
+          <label for="scopeRead">Read</label>
+          <input type="checkbox" id="scopeWrite" name="scope" value="write" <%= hasScope(client, 'write') ? 'checked' : '' %> />
+          <label for="scopeWrite">Write</label>
+        </div>
         <div>
           <input name="client_name" type="hidden" value="<%= client.name %>" />
           <!-- CSRF対策 -->

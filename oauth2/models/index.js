@@ -18,7 +18,9 @@ const modelDefiners = [
   require('./AuthorizationCode'),
   require('./AccessToken'),
   require('./RefreshToken'),
-  require('./RedirectUri')
+  require('./RedirectUri'),
+  require('./Scope'),
+  require('./ClientScope')
 ]
 
 modelDefiners.forEach((definer) => definer(sequelize))
