@@ -1,7 +1,7 @@
 const express = require('express')
 const ClientService = require('../service/ClientService')
-const CreateClientUsecase = require('../usecase/CreateClientUsecase')
 const UpdateClientUsecase = require('../usecase/UpdateClientUsecase')
+const RemoveClientUsecase = require('../usecase/RemoveClientUsecase')
 
 const router = express.Router()
 
@@ -17,18 +17,19 @@ router.get('/create', async (req, res) => {
 router.post('/create', async (req, res) => {
   const { label } = req.body
   const user = req.authenticatedUser
+  const clientService = ClientService.newInstance()
   if (user) {
-    await CreateClientUsecase.execute({ label, user })
+    await clientService.create(label, user)
   }
   res.redirect('/')
 })
 
-router.post('/update', async (req, res) => {
+router.post('/:client/update', async (req, res) => {
   const {
-    client_name: clientName,
     redirect_uris: redirectUris,
     scope
   } = req.body
+  const clientName = req.params['client']
   await UpdateClientUsecase.execute({
     clientName,
     redirectUris: (() => {
@@ -40,6 +41,20 @@ router.post('/update', async (req, res) => {
     })(),
     scopes: scope
   })
+  res.redirect('/')
+})
+
+router.post('/:client/remove', async (req, res) => {
+  const clientName = req.params['client']
+  await RemoveClientUsecase.execute({ clientName })
+  res.redirect('/')
+})
+
+router.post('/:client/regenerate_secret', async (req, res) => {
+  const clientName = req.params['client']
+  const clientService = ClientService.newInstance()
+  const client = await clientService.findByName(clientName)
+  await clientService.regenerateSecret(client)
   res.redirect('/')
 })
 

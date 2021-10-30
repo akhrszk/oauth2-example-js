@@ -1,4 +1,5 @@
 const { models } = require('../models')
+const randomstring = require('randomstring')
 
 class ClientService {
   constructor(models) {
@@ -17,6 +18,20 @@ class ClientService {
       where: { userId: user.id },
       include: [models.RedirectUri, models.Scope]
     })
+  }
+
+  create(label, user) {
+    return models.Client.create({
+      name: randomstring.generate(25),
+      secret: randomstring.generate(50),
+      userId: user.id,
+      label
+    })
+  }
+
+  regenerateSecret(client) {
+    client.secret = randomstring.generate(50)
+    return client.save()
   }
 
   async setScopes(client, scopes) {
@@ -39,9 +54,9 @@ class ClientService {
   }
 
   async setRedirectUris(client, redirectUris) {
-    const arr = client.RedirectUris.map(({ uri }) => uri)
-    const del = arr.filter((v) => !redirectUris.includes(v))
-    const add = redirectUris.filter((v) => !arr.includes(v))
+    const exists = client.RedirectUris.map(({ uri }) => uri)
+    const del = exists.filter((v) => !redirectUris.includes(v))
+    const add = redirectUris.filter((v) => !exists.includes(v))
     await Promise.all([
       models.RedirectUri.destroy({ where: { clientId: client.id, uri: del } }),
       models.RedirectUri.bulkCreate(
