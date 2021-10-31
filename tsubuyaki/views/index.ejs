@@ -17,22 +17,39 @@
 
   <main role="main" class="container">
     <div class="jumbotron">
+      <h1 class="display-4 mb-2">つぶやきったー</h1>
       <% if (user) { %>
-        <h1 class="display-4">Hello, <%= user.name %></h1>
-      <% } else { %>
-        <h1 class="display-4">つぶやきったー</h1>
+        <p class="lead mb-2">Hello, <%= user.name %></p>
+        <hr class="my-4" />
       <% } %>
       <% if (user) { %>
-        <form method="post" action="/status">
-          <div>
-            <input name="body" type="text" placeholder="つぶやき" />
-            <button type="submit">Post</button>
-          </div>
+        <form class="form-inline" method="post" action="/status">
+          <label class="sr-only" for="inputText">つぶやき</label>
+          <input
+            class="form-control mr-sm-2 mb-2"
+            id="inputText"
+            name="body"
+            type="text"
+            placeholder="つぶやき"
+            minlength="1"
+            required
+           />
+          <button type="submit" class="btn btn-primary mb-2">Post</button>
         </form>
       <% } else { %>
         <a class="btn btn-primary btn-lg" href="/login" role="button">ログイン</a>
         <a class="btn btn-primary btn-lg" href="/signup" role="button">新規会員登録</a>
       <% } %>
+    </div>
+    <div class="p-3 bg-white shadow-sm">
+      <% statuses.forEach(status => { %>
+      <div class="media text-muted">
+        <p class="media-body small border-bottom border-gray">
+          <strong class="d-block"><%= status.User.name %></strong>
+          <%= status.body %>
+        </p>
+      </div>
+      <% }) %>
     </div>
   </main>
 </body>
