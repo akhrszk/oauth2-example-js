@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize')
+const { AUTHORIZATION_CODE_EXPIRES_IN } = require('../common/Constants')
 
 module.exports = (sequelize) => {
   sequelize.define(
@@ -20,6 +21,25 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+      },
+      exp: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return this.iat + AUTHORIZATION_CODE_EXPIRES_IN
+        },
+        set(value) {
+          throw new Error('Do not try to set the `exp` value!')
+        }
+      },
+      iat: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          const createdAt = new Date(this.getDataValue('createdAt')).getTime()
+          return Math.floor(createdAt / 1000)
+        },
+        set(value) {
+          throw new Error('Do not try to set the `iat` value!')
+        }
       }
     },
     {

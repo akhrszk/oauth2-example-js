@@ -25,10 +25,7 @@ router.post('/create', async (req, res) => {
 })
 
 router.post('/:client/update', async (req, res) => {
-  const {
-    redirect_uris: redirectUris,
-    scope
-  } = req.body
+  const { redirect_uris: redirectUris, scope } = req.body
   const clientName = req.params['client']
   await UpdateClientUsecase.execute({
     clientName,

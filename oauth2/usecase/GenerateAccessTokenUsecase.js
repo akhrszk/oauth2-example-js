@@ -20,7 +20,7 @@ exports.execute = async (params) => {
   const found = await models.AuthorizationCode.findOne({
     where: { clientId: client.id, code }
   })
-  const checkCode = found && !found.isUsed
+  const checkCode = found && !found.isUsed && !found.isExpired
   if (!checkCode) {
     return undefined
   }
