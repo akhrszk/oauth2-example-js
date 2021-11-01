@@ -1,5 +1,6 @@
 const express = require('express')
-const ClientService = require('../service/ClientService')
+const { authentication } = require('../middlewares')
+const AppService = require('../service/AppService')
 const IntrospectionUsecase = require('../usecase/TokenIntrospectionUsecase')
 const RevokeAccessTokenUsecase = require('../usecase/RevokeAccessTokenUsecase')
 
@@ -28,17 +29,15 @@ router.post('/revoke', async (req, res) => {
   res.send()
 })
 
-router.get('/', async (req, res) => {
-  const user = req.authenticatedUser
-  let clients = []
-  if (user) {
-    clients = await ClientService.newInstance().findByUser(user)
-  }
-  res.render('index', {
-    authenticatedUser: user,
-    clients,
-    hasScope: (client, scope) => !!client.Scopes.find((v) => v.scope === scope)
-  })
+router.get('/', authentication(), async (req, res) => {
+  const { user } = req.authentication
+  const apps = await ((user) => {
+    if (user) {
+      return AppService.newInstance().findByUser(user)
+    }
+    return []
+  })(user)
+  res.render('index', { authenticatedUser: user, apps })
 })
 
 module.exports = router

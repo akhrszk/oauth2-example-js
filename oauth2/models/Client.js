@@ -12,8 +12,8 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(50),
         allowNull: false
       },
-      label: {
-        type: DataTypes.STRING(64),
+      appId: {
+        type: DataTypes.INTEGER,
         allowNull: false
       },
       userId: {

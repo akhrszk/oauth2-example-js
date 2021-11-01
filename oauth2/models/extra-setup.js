@@ -1,7 +1,7 @@
 module.exports = {
   applyExtraSetup: (sequelize) => {
-    const { Client, RedirectUri, Scope, ClientScope } = sequelize.models
-    Client.hasMany(RedirectUri, { foreignKey: 'clientId' })
-    Client.belongsToMany(Scope, { through: ClientScope })
+    const { App, RedirectUri, Scope, AppScope } = sequelize.models
+    App.hasMany(RedirectUri, { foreignKey: 'appId' })
+    App.belongsToMany(Scope, { through: AppScope })
   }
 }

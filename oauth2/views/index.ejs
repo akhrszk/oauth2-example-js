@@ -17,72 +17,29 @@
   <main role="main" class="container">
     <div class="jumbotron">
       <h1 class="display-4">認証サーバー</h1>
+      <% if (authenticatedUser) { %>
+        <p class="lead mb-2">Signed in as <%= authenticatedUser.name %></p>
+      <% } %>
     </div>
     <div>
-      <% if (authenticatedUser) { %>
-        <h2 class="mb-4"><%= authenticatedUser.name %></h2>
-        <% if (!clients.length) { %>
-          <form method="post" action="/clients/create">
-            <input name="label" type="hidden" value="<%= authenticatedUser.name %> #<%= clients.length + 1 %>" />
-            <button type="submit" class="btn btn-primary">Create Client</button>
-          </form>
-          <!--
-          <a class="btn btn-primary btn-lg" href="/clients/create" role="button">Create Client</a>
-          -->
-        <% } %>
-      <% } else { %>
-        <a class="btn btn-primary btn-lg" href="/login" role="button">ログイン</a>
+      <% if (!authenticatedUser) { %>
+        <a class="btn btn-primary btn" href="/login" role="button">ログイン</a>
       <% } %>
-      <% clients.forEach(client=> { %>
-        <div class="card bg-light mb-3">
-          <div class="card-body">
-            <div>
-              <div class="row">
-                <div class="col">Client ID: <%= client.name %></div>
-              </div>
-              <div class="row">
-                <div class="col-md-10">Client Secret: <%= client.secret %></div>
-                <div class="col-md-2 text-right">
-                  <form method="post" action="/clients/<%= client.name %>/regenerate_secret">
-                    <button type="submit" class="btn btn-outline-danger">Regenerate</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
+      <% if (authenticatedUser) { %>
+        <div class="mb-3 text-right">
+          <a class="btn btn-primary btn" href="/apps/create" role="button">New App</a>
         </div>
-        <form method="post" action="/clients/<%= client.name %>/update">
-          <fieldset class="form-group row">
-            <label for="inputRedirectUris" class="col-sm-2 col-form-label">Redirect URI</label>
-            <div class="col-sm-10">
-              <input name="redirect_uris" type="text" class="form-control" id="inputRedirectUris"
-                value="<%= client.RedirectUris.map(({ uri }) => uri).join(',') %>" placeholder="Redirect URI" />
-            </div>
-          </fieldset>
-          <fieldset class="form-group">
-            <div class="row">
-              <legend class="col-form-label col-sm-2 pt-0">Scope</legend>
-              <div class="col-sm-10">
-                <div class="form-check">
-                  <input type="checkbox" id="scopeRead" name="scope" value="read" class="form-check-input" <%= hasScope(client, 'read') ? 'checked' : '' %> />
-                  <label class="form-check-label" for="scopeRead">Read</label>
-                </div>
-                <div class="form-check">
-                  <input type="checkbox" id="scopeWrite" name="scope" value="write" class="form-check-input" <%= hasScope(client, 'write') ? 'checked' : '' %> />
-                  <label class="form-check-label" for="scopeWrite">Write</label>
-                </div>
-              </div>
-            </div>
-          </fieldset>
-          <!-- CSRF対策 -->
-          <button type="submit" class="btn btn-primary">保存</button>
-        </form>
-        <hr class="mt-3 mb-3" />
-        <form method="post" action="/clients/<%= client.name %>/remove">
-          <!-- CSRF対策 -->
-          <button type="submit" class="btn btn-danger">Clientを削除</button>
-        </form>
-      <% }) %>
+      <% } %>
+      <div class="list-group">
+        <% apps.forEach(app => { %>
+          <a
+            href="/apps/<%= app.id %>"
+            class="list-group-item list-group-item-action"
+          >
+            <%= app.name %>
+          </a>
+        <% }) %>
+      </div>
     </div>
   </main>
 </body>

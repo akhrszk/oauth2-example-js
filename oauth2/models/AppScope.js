@@ -2,9 +2,9 @@ const { DataTypes } = require('sequelize')
 
 module.exports = (sequelize) => {
   sequelize.define(
-    'ClientScope',
+    'AppScope',
     {
-      clientId: {
+      appId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         allowNull: false
@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
       }
     },
     {
-      tableName: 'client_scope',
+      tableName: 'apps_scopes',
       underscored: true,
       timestamps: false
     }

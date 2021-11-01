@@ -14,13 +14,14 @@ const sequelize = new Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
 
 const modelDefiners = [
   require('./User'),
+  require('./App'),
   require('./Client'),
   require('./AuthorizationCode'),
   require('./AccessToken'),
   require('./RefreshToken'),
   require('./RedirectUri'),
   require('./Scope'),
-  require('./ClientScope')
+  require('./AppScope')
 ]
 
 modelDefiners.forEach((definer) => definer(sequelize))

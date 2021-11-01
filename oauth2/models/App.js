@@ -2,20 +2,21 @@ const { DataTypes } = require('sequelize')
 
 module.exports = (sequelize) => {
   sequelize.define(
-    'RedirectUri',
+    'App',
     {
-      appId: {
-        type: DataTypes.INTEGER,
+      name: {
+        type: DataTypes.STRING(25),
         allowNull: false
       },
-      uri: {
-        type: DataTypes.STRING(255),
+      userId: {
+        type: DataTypes.INTEGER,
         allowNull: false
       }
     },
     {
-      tableName: 'redirect_uris',
-      underscored: true
+      tableName: 'apps',
+      underscored: true,
+      paranoid: true
     }
   )
 }
