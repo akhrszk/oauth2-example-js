@@ -1,6 +1,8 @@
 const express = require('express')
 const querystring = require('querystring')
 const { ACCESS_TOKEN_EXPIRES_IN } = require('../common/Constants')
+const AppService = require('../service/AppService')
+const ClientService = require('../service/ClientService')
 const LoginUsecase = require('../usecase/LoginUsecase')
 const GenerateAccessTokenUsecase = require('../usecase/GenerateAccessTokenUsecase')
 const RefreshAccessTokenUsecase = require('../usecase/RefreshAccessTokenUsecase')
@@ -8,8 +10,18 @@ const GenerateAuthorizationCodeUsecase = require('../usecase/GenerateAuthorizati
 
 const router = express.Router()
 
-router.get('/authorize', (req, res) => {
-  res.render('authorize')
+router.get('/authorize', async (req, res) => {
+  const { client_id: clientName } = req.query
+  const appService = AppService.sharedInstance
+  const clientService = ClientService.sharedInstance
+  const { client } = await clientService.findByName(clientName)
+  if (!client) {
+    res.status(403)
+    res.send('Forbidden')
+    return
+  }
+  const app = await appService.findByClient(client)
+  res.render('authorize', { app })
 })
 
 router.post('/authorize', async (req, res) => {
