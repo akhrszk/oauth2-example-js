@@ -26,7 +26,7 @@ router.get('/authorize', async (req, res) => {
 
 router.post('/authorize', async (req, res) => {
   const {
-    client_id: clientId,
+    client_id: clientName,
     redirect_uri: redirectUri,
     response_type: responseType,
     state
@@ -40,10 +40,11 @@ router.post('/authorize', async (req, res) => {
   }
   if (responseType !== 'code') {
     // TODO エラー
+    res.redirect('back')
     return
   }
   const code = await GenerateAuthorizationCodeUsecase.execute({
-    clientName: clientId,
+    clientName,
     user,
     redirectUri
   })
@@ -85,9 +86,9 @@ router.post('/token', async (req, res) => {
     }
     const { accessToken, refreshToken } = tokenSet
     res.json({
-      access_token: accessToken,
+      access_token: accessToken.token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN,
-      refresh_token: refreshToken
+      refresh_token: refreshToken.token
     })
   } else if (
     grantType === 'refresh_token' &&
@@ -105,9 +106,9 @@ router.post('/token', async (req, res) => {
       res.send('Forbidden')
       return
     }
-    const { accessToken } = result
+    const { token } = result
     res.json({
-      access_token: accessToken,
+      access_token: token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN
     })
   } else {

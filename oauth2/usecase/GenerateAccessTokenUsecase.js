@@ -1,13 +1,10 @@
-const { models } = require('../models')
-const {
-  generateAccessToken,
-  generateRefreshToken
-} = require('../common/Functions')
 const ClientService = require('../service/ClientService')
+const AuthorizationService = require('../service/AuthorizationService')
 
 exports.execute = async (params) => {
   const { code, clientName, clientSecret, redirectUri } = params
   const clientService = ClientService.sharedInstance
+  const authorizationService = AuthorizationService.sharedInstance
   const { client, redirectUris } = await clientService.findByName(clientName)
   const checkClient =
     client &&
@@ -16,26 +13,12 @@ exports.execute = async (params) => {
   if (!checkClient) {
     return undefined
   }
-  const found = await models.AuthorizationCode.findOne({
-    where: { clientId: client.id, code }
-  })
-  const checkCode = found && !found.isUsed && !found.isExpired
-  if (!checkCode) {
-    return undefined
-  }
-  const [{ token: accessToken }, { token: refreshToken }] = await Promise.all([
-    models.AccessToken.create({
-      clientId: client.id,
-      token: generateAccessToken(),
-      userId: found.userId
-    }),
-    models.RefreshToken.create({
-      clientId: client.id,
-      token: generateRefreshToken(),
-      userId: found.userId
-    })
-  ])
-  found.isUsed = true
-  await found.save()
+  const authorizationCode = await authorizationService.findAuthorizationCode(
+    client,
+    code
+  )
+  const { accessToken, refreshToken } =
+    await authorizationService.createAccessToken(client, authorizationCode)
+  await authorizationService.useAuthorizationCode(authorizationCode)
   return { accessToken, refreshToken }
 }

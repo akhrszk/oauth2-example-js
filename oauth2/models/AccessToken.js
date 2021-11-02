@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
+      authorizationCodeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       isRevoked: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -25,7 +29,7 @@ module.exports = (sequelize) => {
       isExpired: {
         type: DataTypes.VIRTUAL,
         get() {
-          return this.exp < Date.now()
+          return this.exp * 1000 < Date.now()
         },
         set(value) {
           throw new Error('Do not try to set the `exp` value!')

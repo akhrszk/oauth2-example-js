@@ -22,6 +22,15 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: false
       },
+      isExpired: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return this.exp * 1000 < Date.now()
+        },
+        set(value) {
+          throw new Error('Do not try to set the `exp` value!')
+        }
+      },
       exp: {
         type: DataTypes.VIRTUAL,
         get() {

@@ -16,6 +16,10 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
+      authorizationCodeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       isRevoked: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

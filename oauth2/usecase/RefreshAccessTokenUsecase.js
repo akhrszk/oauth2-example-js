@@ -1,22 +1,22 @@
 const { models } = require('../models')
-const { generateAccessToken } = require('../common/Functions')
+const AuthorizationService = require('../service/AuthorizationService')
 
 exports.execute = async (params) => {
-  const { clientName, clientSecret, refreshToken } = params
+  const { clientName, clientSecret, refreshToken: token } = params
   const client = await models.Client.findOne({ where: { name: clientName } })
   if (client && client.secret !== clientSecret) {
     return undefined
   }
-  const found = await models.RefreshToken.findOne({
-    where: { clientId: client.id, token: refreshToken }
-  })
-  if (found.isRevoked) {
+  const authorizationService = AuthorizationService.sharedInstance
+  const { refreshToken } = await authorizationService.findRefreshToken(
+    client,
+    token
+  )
+  if (!refreshToken) {
     return undefined
   }
-  const { token: accessToken } = await models.AccessToken.create({
-    clientId: client.id,
-    token: generateAccessToken(),
-    userId: found.userId
-  })
-  return { accessToken }
+  const accessToken = await authorizationService.refreshAccessToken(
+    refreshToken
+  )
+  return accessToken
 }

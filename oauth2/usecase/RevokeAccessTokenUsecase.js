@@ -1,15 +1,8 @@
-const { models } = require('../models')
+const AuthorizationService = require('../service/AuthorizationService')
 
 exports.execute = async (params) => {
   const { accessToken, refreshToken } = params
-  accessToken &&
-    (await models.AccessToken.update(
-      { isRevoked: true },
-      { where: { token: accessToken } }
-    ))
-  refreshToken &&
-    (await models.RefreshToken.update(
-      { isRevoked: true },
-      { where: { token: refreshToken } }
-    ))
+  const authorizationService = AuthorizationService.sharedInstance
+  accessToken && (await authorizationService.revokeAccessToken(accessToken))
+  refreshToken && (await authorizationService.revokeRefreshToken(refreshToken))
 }
