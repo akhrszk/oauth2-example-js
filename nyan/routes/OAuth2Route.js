@@ -9,10 +9,14 @@ router.get('/callback', async (req, res) => {
     res.send(error)
     return
   }
-  const data = await TsubuyakiService.sharedInstance.getAccessToken(code)
+  const tsubuyakiService = TsubuyakiService.sharedInstance
+  const data = await tsubuyakiService.getAccessToken(code)
+  const user = await tsubuyakiService.getMe(data['access_token'])
+  console.log(user)
   req.session.tsubuyakiAccessToken = data['access_token']
   req.session.tsubuyakiRefreshToken = data['refresh_token']
-  req.session.tsubuyakiAccessTokenExpires = Date.now() + data['expires_in']
+  req.session.tsubuyakiAccessTokenExpires =
+    Math.floor(Date.now() / 1000) + data['expires_in']
   res.redirect('/')
 })
 

@@ -6,5 +6,7 @@ exports.execute = async (params) => {
   if (!status.body) {
     throw new Error('Not allowed empty')
   }
-  return await models.Status.create(status)
+  const created = await models.Status.create(status)
+  created.User = user
+  return created
 }

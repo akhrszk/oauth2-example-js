@@ -33,7 +33,7 @@ router.get('/', authentication(), async (req, res) => {
   const { user } = req.authentication
   const apps = await ((user) => {
     if (user) {
-      return AppService.newInstance().findByUser(user)
+      return AppService.sharedInstance.findByUser(user)
     }
     return []
   })(user)

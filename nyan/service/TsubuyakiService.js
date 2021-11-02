@@ -64,14 +64,26 @@ class TsubuyakiService {
     )
   }
 
+  async getMe(accessToken) {
+    try {
+      const res = await axios.get(`${TSUBUYAKI_API_BASE_URL}/me`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      return res.data
+    } catch (err) {
+      console.log(err)
+      return undefined
+    }
+  }
+
   async send(message, accessToken) {
     try {
-      const data = await axios.post(
+      const res = await axios.post(
         `${TSUBUYAKI_API_BASE_URL}/status`,
         querystring.stringify({ body: message }),
         { headers: { Authorization: `Bearer ${accessToken}` } }
       )
-      return data
+      return res.data
     } catch (err) {
       console.log(err)
       return undefined
@@ -79,10 +91,10 @@ class TsubuyakiService {
   }
 
   static get sharedInstance() {
-    if (!this.instance) {
-      this.instance = new TsubuyakiService()
+    if (!this._sharedInstance) {
+      this._sharedInstance = new TsubuyakiService()
     }
-    return this.instance
+    return this._sharedInstance
   }
 }
 

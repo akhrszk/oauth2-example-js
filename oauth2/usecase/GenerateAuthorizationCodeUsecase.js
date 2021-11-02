@@ -1,16 +1,15 @@
 const { models } = require('../models')
+const ClientService = require('../service/ClientService')
 const { generateAuthorizationCode } = require('../common/Functions')
 
 exports.execute = async (params) => {
   const { clientName, user, redirectUri } = params
-  const client = await models.Client.findOne({
-    where: { name: clientName },
-    include: [models.RedirectUri]
-  })
+  const clientService = ClientService.sharedInstance
+  const { client, redirectUris } = await clientService.findByName(clientName)
   if (!client) {
     return undefined
   }
-  if (!client.RedirectUris.map(({ uri }) => uri).includes(redirectUri)) {
+  if (!redirectUris.map(({ uri }) => uri).includes(redirectUri)) {
     return undefined
   }
   const { code } = await models.AuthorizationCode.create({

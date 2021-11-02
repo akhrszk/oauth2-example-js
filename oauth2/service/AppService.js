@@ -25,6 +25,12 @@ class AppService {
     })
   }
 
+  findByClient(client) {
+    return models.App.findByPk(client.appId, {
+      include: [models.RedirectUri, models.Scope]
+    })
+  }
+
   create(name, user) {
     return models.App.create({
       name,
@@ -65,8 +71,11 @@ class AppService {
     ])
   }
 
-  static newInstance() {
-    return new AppService(models)
+  static get sharedInstance() {
+    if (!this._sharedInstance) {
+      this._sharedInstance = new AppService(models)
+    }
+    return this._sharedInstance
   }
 }
 

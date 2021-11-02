@@ -6,15 +6,23 @@ class ClientService {
     this.models = models
   }
 
-  findByApp(app) {
-    return models.Client.findAll({
-      where: { appId: app.id }
+  async find(user, app, clientId) {
+    const client = await models.Client.findOne({
+      where: { id: clientId, userId: user.id, appId: app.id }
     })
+    const { scopes, redirectUris } = await this.getScopesAndRedirectUris(client)
+    return { client, scopes, redirectUris }
   }
 
-  find(user, app, clientId) {
-    return models.Client.findOne({
-      where: { id: clientId, userId: user.id, appId: app.id }
+  async findByName(name) {
+    const client = await models.Client.findOne({ where: { name } })
+    const { scopes, redirectUris } = await this.getScopesAndRedirectUris(client)
+    return { client, scopes, redirectUris }
+  }
+
+  async findByApp(app) {
+    return await models.Client.findAll({
+      where: { appId: app.id }
     })
   }
 
@@ -23,7 +31,20 @@ class ClientService {
     const app = await models.App.findByPk(client.appId, {
       include: [models.Scope, models.RedirectUri]
     })
+    if (!app) {
+      return {}
+    }
     return { client, scopes: app.Scopes, redirectUris: app.RedirectUris }
+  }
+
+  async getScopesAndRedirectUris(client) {
+    const app = await models.App.findByPk(client.appId, {
+      include: [models.Scope, models.RedirectUri]
+    })
+    if (!app) {
+      return {}
+    }
+    return { scopes: app.Scopes, redirectUris: app.RedirectUris }
   }
 
   create(app, user) {
@@ -40,8 +61,11 @@ class ClientService {
     return client.save()
   }
 
-  static newInstance() {
-    return new ClientService(models)
+  static get sharedInstance() {
+    if (!this._sharedInstance) {
+      this._sharedInstance = new ClientService(models)
+    }
+    return this._sharedInstance
   }
 }
 

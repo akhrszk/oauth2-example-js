@@ -2,7 +2,7 @@ const AppService = require('../service/AppService')
 
 exports.execute = async (params) => {
   const { user, appId, redirectUris, scopes } = params
-  const appService = AppService.newInstance()
+  const appService = AppService.sharedInstance
   const app = await appService.find(user, appId)
   if (!app) {
     return undefined

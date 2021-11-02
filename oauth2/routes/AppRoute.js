@@ -16,8 +16,8 @@ router.get(
   async (req, res) => {
     const { user } = req.authentication
     const appId = req.params['app']
-    const appService = AppService.newInstance()
-    const clientService = ClientService.newInstance()
+    const appService = AppService.sharedInstance
+    const clientService = ClientService.sharedInstance
     const app = await appService.find(user, appId)
     if (!app) {
       res.status(404)
@@ -37,8 +37,8 @@ router.get(
 router.post('/create', authentication(), async (req, res) => {
   const { name } = req.body
   const { user } = req.authentication
-  const appService = AppService.newInstance()
-  const clientService = ClientService.newInstance()
+  const appService = AppService.sharedInstance
+  const clientService = ClientService.sharedInstance
   if (!user) {
     res.status(403)
     res.send('Forbidden')
@@ -83,7 +83,7 @@ router.post(
   async (req, res) => {
     const { user } = req.authentication
     const appId = req.params['app']
-    const appService = AppService.newInstance()
+    const appService = AppService.sharedInstance
     const app = await appService.find(user, appId)
     if (!app) {
       res.status(404)
@@ -102,15 +102,15 @@ router.post(
     const { user } = req.authentication
     const appId = req.params['app']
     const clientId = req.body['client_id']
-    const appService = AppService.newInstance()
-    const clientService = ClientService.newInstance()
+    const appService = AppService.sharedInstance
+    const clientService = ClientService.sharedInstance
     const app = await appService.findById(appId)
     if (!app) {
       res.status(404)
       res.send('Not Found')
       return
     }
-    const client = await clientService.find(user, app, clientId)
+    const { client } = await clientService.find(user, app, clientId)
     if (!client) {
       res.status(404)
       res.send('Not Found')

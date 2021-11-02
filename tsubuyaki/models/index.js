@@ -12,10 +12,7 @@ const sequelize = new Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
   host: DB_HOST
 })
 
-const modelDefiners = [
-  require('./User'),
-  require('./Status')
-]
+const modelDefiners = [require('./User'), require('./Status')]
 
 modelDefiners.forEach((definer) => definer(sequelize))
 

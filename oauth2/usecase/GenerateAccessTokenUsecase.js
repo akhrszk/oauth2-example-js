@@ -3,17 +3,16 @@ const {
   generateAccessToken,
   generateRefreshToken
 } = require('../common/Functions')
+const ClientService = require('../service/ClientService')
 
 exports.execute = async (params) => {
   const { code, clientName, clientSecret, redirectUri } = params
-  const client = await models.Client.findOne({
-    where: { name: clientName },
-    include: [models.RedirectUri]
-  })
+  const clientService = ClientService.sharedInstance
+  const { client, redirectUris } = await clientService.findByName(clientName)
   const checkClient =
     client &&
     client.secret === clientSecret &&
-    client.RedirectUris.map(({ uri }) => uri).includes(redirectUri)
+    redirectUris.map(({ uri }) => uri).includes(redirectUri)
   if (!checkClient) {
     return undefined
   }

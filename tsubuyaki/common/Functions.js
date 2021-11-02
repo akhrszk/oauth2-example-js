@@ -6,6 +6,11 @@ const hashPassword = (rawPassword) => {
   return hash.digest('hex')
 }
 
+const toSeconds = (date) => {
+  return Math.floor(date.getTime() / 1000)
+}
+
 module.exports = {
-  hashPassword
+  hashPassword,
+  toSeconds
 }

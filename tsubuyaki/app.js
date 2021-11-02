@@ -23,7 +23,7 @@ app.use('/login', require('./routes/LoginRoute'))
 app.use('/logout', require('./routes/LogoutRoute'))
 app.use('/signup', require('./routes/SignupRoute'))
 app.use('/status', require('./routes/StatusRoute'))
-app.use('/api/status', require('./routes/api/StatusRoute'))
+app.use('/api', require('./routes/api/IndexRoute'))
 app.use('/', require('./routes/IndexRoute'))
 
 app.listen(PORT, () => {

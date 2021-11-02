@@ -7,7 +7,7 @@ exports.execute = async (params) => {
   const found = await models.AccessToken.findOne({
     where: { token }
   })
-  const clientService = ClientService.newInstance()
+  const clientService = ClientService.sharedInstance
   const { scopes } = await clientService.findById(found.clientId)
   return (
     found &&
