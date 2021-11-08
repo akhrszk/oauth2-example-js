@@ -9,18 +9,26 @@
 </head>
 
 <body class="text-center">
-  <form class="form-signin" method="post">
+  <form class="form-signin" method="get">
     <h1 class="h3 mb-3 font-weight-normal">つぶやきったー</h1>
     <p class="text-left"><strong><%= app.name %></strong>にアカウントの利用を許可しますか？</p>
     <label for="inputEmail" class="sr-only">Email address</label>
     <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
     <label for="inputPassword" class="sr-only">Password</label>
     <input name="pass" type="password" id="inputPassword" class="form-control mb-3" placeholder="Password" required>
+    <input name="scope" value="<%= scope %>" type="hidden" />
+    <input name="client_id" value="<%= clientName %>" type="hidden" />
+    <input name="response_type" value="<%= responseType %>" type="hidden" />
+    <input name="redirect_uri" value="<%= redirectUri %>" type="hidden" />
+    <% if (state) { %>
+      <input name="state" value="<%= state %>" type="hidden" />
+    <% } %>
+    <input name="authorize" value="true" type="hidden" />
     <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
     <div class="text-left mt-4">
       このアプリケーションは以下の権限を求めています
       <ul>
-        <% app.Scopes.forEach(({ scope }) => { %>
+        <% scope.split(' ').forEach(scope => { %>
           <li><%= scope %></li>
         <% }) %>
       </ul>

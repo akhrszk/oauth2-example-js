@@ -11,41 +11,59 @@ const GenerateAuthorizationCodeUsecase = require('../usecase/GenerateAuthorizati
 const router = express.Router()
 
 router.get('/authorize', async (req, res) => {
-  const { client_id: clientName } = req.query
-  const appService = AppService.sharedInstance
-  const clientService = ClientService.sharedInstance
-  const { client } = await clientService.findByName(clientName)
-  if (!client) {
-    res.status(403)
-    res.send('Forbidden')
-    return
-  }
-  const app = await appService.findByClient(client)
-  res.render('authorize', { app })
-})
-
-router.post('/authorize', async (req, res) => {
   const {
     client_id: clientName,
     redirect_uri: redirectUri,
     response_type: responseType,
+    email,
+    pass,
+    authorize,
+    scope,
     state
   } = req.query
-  const { email, pass } = req.body
-  const user = await LoginUsecase.execute({ email, pass })
-  if (!user) {
-    // TODO エラー
-    res.redirect('back')
+  const appService = AppService.sharedInstance
+  const clientService = ClientService.sharedInstance
+  const { client, scopes: clientScopes } = await clientService.findByName(
+    clientName
+  )
+  if (typeof scope !== 'string') {
+    res.status(400)
+    res.send('Bad Request')
     return
   }
-  if (responseType !== 'code') {
-    // TODO エラー
+  const requestScopes = scope.split(' ')
+  const scopeChecked = (() => {
+    const having = clientScopes.map(({ scope }) => scope)
+    return requestScopes.every((v) => having.includes(v))
+  })()
+  if (!client || !scopeChecked || responseType !== 'code') {
+    /* 注) response_typeはcodeのみサポートする */
+    res.status(400)
+    res.send('Bad Request')
+    return
+  }
+  if (!authorize) {
+    // 認可ページ表示
+    const app = await appService.findByClient(client)
+    res.render('authorize', {
+      app,
+      scope,
+      clientName,
+      responseType,
+      redirectUri,
+      state
+    })
+    return
+  }
+  const user = await LoginUsecase.execute({ email, pass })
+  if (!user) {
     res.redirect('back')
     return
   }
   const code = await GenerateAuthorizationCodeUsecase.execute({
     clientName,
     user,
+    scopes: requestScopes,
     redirectUri
   })
   const query =

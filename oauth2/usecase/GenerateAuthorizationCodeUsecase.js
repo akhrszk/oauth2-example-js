@@ -2,12 +2,10 @@ const ClientService = require('../service/ClientService')
 const AuthorizationService = require('../service/AuthorizationService')
 
 exports.execute = async (params) => {
-  const { clientName, user, redirectUri } = params
+  const { clientName, user, scopes: requestScopes, redirectUri } = params
   const clientService = ClientService.sharedInstance
   const authorizationService = AuthorizationService.sharedInstance
-  const { client, scopes, redirectUris } = await clientService.findByName(
-    clientName
-  )
+  const { client, redirectUris, scopes } = await clientService.findByName(clientName)
   if (!client) {
     return undefined
   }
@@ -16,7 +14,7 @@ exports.execute = async (params) => {
   }
   const { code } = await authorizationService.createAuthorizationCode(
     client,
-    scopes,
+    scopes.filter(({ scope }) => requestScopes.includes(scope)),
     user
   )
   return code
