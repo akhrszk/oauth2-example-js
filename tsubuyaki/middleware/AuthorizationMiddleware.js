@@ -2,33 +2,25 @@ const axios = require('axios')
 const querystring = require('querystring')
 const { models } = require('../models')
 
-const tokenIntrospection = async (token) => {
-  const res = await axios.post(
-    'http://oauth2:3000/introspection',
-    querystring.stringify({ token })
-  )
-  return res.data
-}
-
 const authorization = (options) => {
-  const required = options?.required ?? false
+  const requiredScopes = options?.required
   return async (req, res, next) => {
     const { token } = ((authorization) => {
       const tuple = authorization?.split(' ') ?? []
       const kv = new Map([tuple])
       return { token: kv.get('Bearer') }
     })(req.headers['authorization'])
-    if (required && !token) {
+    if (!!requiredScopes && !token) {
       res.status(401)
       res.send('Unauthorized')
       return
     }
-    if (!required && !token) {
+    if (!requiredScopes && !token) {
       next()
       return
     }
     const { active, sub, scope } = await tokenIntrospection(token)
-    if (!active && required) {
+    if (!active && !!requiredScopes) {
       res.status(403)
       res.send('Forbidden')
       return
@@ -38,7 +30,7 @@ const authorization = (options) => {
       return
     }
     const user = await models.User.findByPk(sub)
-    if (!user && required) {
+    if (!user && !!requiredScopes) {
       res.status(403)
       res.send('Forbidden')
       return
@@ -47,12 +39,26 @@ const authorization = (options) => {
       next()
       return
     }
+    const having = scope.split(' ')
+    if (!requiredScopes.every((scope) => having.includes(scope))) {
+      res.status(403)
+      res.send('Forbidden')
+      return
+    }
     req.authorization = {
       user,
-      scope: scope.split(' ')
+      scope: having
     }
     next()
   }
+}
+
+const tokenIntrospection = async (token) => {
+  const res = await axios.post(
+    'http://oauth2:3000/introspection',
+    querystring.stringify({ token })
+  )
+  return res.data
 }
 
 module.exports = {
