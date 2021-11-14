@@ -16,7 +16,8 @@ class TsubuyakiService {
     const query = querystring.stringify({
       client_id: TSUBUYAKI_CLIENT_ID,
       redirect_uri: TSUBUYAKI_REDIRECT_URI,
-      response_type: 'code'
+      response_type: 'code',
+      scope: 'read write'
     })
     return `${TSUBUYAKI_OAUTH_LOGIN_URL}?${query}`
   }

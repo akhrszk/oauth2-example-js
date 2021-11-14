@@ -15,8 +15,9 @@ router.get('/callback', async (req, res) => {
   console.log(user)
   req.session.tsubuyakiAccessToken = data['access_token']
   req.session.tsubuyakiRefreshToken = data['refresh_token']
+  // 有効期限はjsで取り扱いやすいようにミリ秒で持つ
   req.session.tsubuyakiAccessTokenExpires =
-    Math.floor(Date.now() / 1000) + data['expires_in']
+    Date.now() + data['expires_in'] * 1000
   res.redirect('/')
 })
 

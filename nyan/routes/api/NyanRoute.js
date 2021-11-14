@@ -12,13 +12,11 @@ router.post('/', refreshAccessTokenIfNeed(), async (req, res) => {
     res.send('Unauthorized')
     return
   }
-  const { data } = await TsubuyakiService.sharedInstance.send(
-    message,
-    accessToken
-  )
+  const tsubuyakiService = TsubuyakiService.sharedInstance
+  const { data } = await tsubuyakiService.send(message, accessToken)
   console.log('Successfully sent to Tsubuyaki API', data)
-  res.status(201)
-  res.send(data)
+  res.status(204)
+  res.send()
 })
 
 module.exports = router
