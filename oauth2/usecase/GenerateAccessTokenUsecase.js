@@ -17,8 +17,15 @@ exports.execute = async (params) => {
     client,
     code
   )
+  if (!authorizationCode) {
+    return undefined
+  }
   const { accessToken, refreshToken } =
     await authorizationService.createAccessToken(client, authorizationCode)
   await authorizationService.useAuthorizationCode(authorizationCode)
-  return { accessToken, refreshToken }
+  return {
+    accessToken,
+    refreshToken,
+    scope: authorizationCode.Scopes.map(({ scope }) => scope).join(' ')
+  }
 }

@@ -12,7 +12,8 @@ class AuthorizationService {
 
   async findAuthorizationCode(client, code) {
     const authorizationCode = await models.AuthorizationCode.findOne({
-      where: { clientId: client.id, code }
+      where: { clientId: client.id, code },
+      include: [models.Scope]
     })
     if (authorizationCode.isUsed || authorizationCode.isExpired) {
       return undefined
@@ -20,7 +21,8 @@ class AuthorizationService {
     return authorizationCode
   }
 
-  async createAuthorizationCode(client, scopes, user) {
+  async createAuthorizationCode(client, scope, user) {
+    const scopes = await models.Scope.findAll({ where: { scope } })
     const authorizationCode = await models.AuthorizationCode.create({
       clientId: client.id,
       code: generateAuthorizationCode(),
@@ -93,12 +95,17 @@ class AuthorizationService {
 
   async refreshAccessToken(refreshToken) {
     const { clientId, userId, authorizationCodeId } = refreshToken
-    return models.AccessToken.create({
+    const accessToken = models.AccessToken.create({
       clientId,
       userId,
       authorizationCodeId,
       token: generateAccessToken()
     })
+    const authorizationCode = await models.AuthorizationCode.findByPk(
+      authorizationCodeId,
+      { include: [models.Scope] }
+    )
+    return [accessToken, authorizationCode.Scopes]
   }
 
   revokeAccessToken(token) {

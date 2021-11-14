@@ -2,7 +2,6 @@ const express = require('express')
 const session = require('express-session')
 const bodyParser = require('body-parser')
 const path = require('path')
-const AuthenticateUsecase = require('./usecase/AuthenticateUsecase')
 const { PORT, SESSION_SECRET } = require('./common/Constants')
 
 const app = express()

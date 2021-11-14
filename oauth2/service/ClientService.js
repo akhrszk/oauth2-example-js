@@ -6,6 +6,12 @@ class ClientService {
     this.models = models
   }
 
+  async findByApp(app) {
+    return await models.Client.findAll({
+      where: { appId: app.id }
+    })
+  }
+
   async find(user, app, clientId) {
     const client = await models.Client.findOne({
       where: { id: clientId, userId: user.id, appId: app.id }
@@ -18,23 +24,6 @@ class ClientService {
     const client = await models.Client.findOne({ where: { name } })
     const { scopes, redirectUris } = await this.getScopesAndRedirectUris(client)
     return { client, scopes, redirectUris }
-  }
-
-  async findByApp(app) {
-    return await models.Client.findAll({
-      where: { appId: app.id }
-    })
-  }
-
-  async findById(clientId) {
-    const client = await models.Client.findByPk(clientId)
-    const app = await models.App.findByPk(client.appId, {
-      include: [models.Scope, models.RedirectUri]
-    })
-    if (!app) {
-      return {}
-    }
-    return { client, scopes: app.Scopes, redirectUris: app.RedirectUris }
   }
 
   async getScopesAndRedirectUris(client) {

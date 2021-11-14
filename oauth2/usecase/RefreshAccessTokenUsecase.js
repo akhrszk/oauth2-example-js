@@ -15,8 +15,8 @@ exports.execute = async (params) => {
   if (!refreshToken) {
     return undefined
   }
-  const accessToken = await authorizationService.refreshAccessToken(
+  const [accessToken, scopes] = await authorizationService.refreshAccessToken(
     refreshToken
   )
-  return accessToken
+  return { accessToken, scope: scopes.map(({ scope }) => scope).join(' ') }
 }

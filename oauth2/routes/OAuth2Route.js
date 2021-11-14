@@ -3,10 +3,10 @@ const querystring = require('querystring')
 const { ACCESS_TOKEN_EXPIRES_IN } = require('../common/Constants')
 const AppService = require('../service/AppService')
 const ClientService = require('../service/ClientService')
+const AuthorizationService = require('../service/AuthorizationService')
 const LoginUsecase = require('../usecase/LoginUsecase')
 const GenerateAccessTokenUsecase = require('../usecase/GenerateAccessTokenUsecase')
 const RefreshAccessTokenUsecase = require('../usecase/RefreshAccessTokenUsecase')
-const GenerateAuthorizationCodeUsecase = require('../usecase/GenerateAuthorizationCodeUsecase')
 
 const router = express.Router()
 
@@ -21,29 +21,29 @@ router.get('/authorize', async (req, res) => {
     scope,
     state
   } = req.query
-  const appService = AppService.sharedInstance
   const clientService = ClientService.sharedInstance
-  const { client, scopes: clientScopes } = await clientService.findByName(
+  const { client, scopes, redirectUris } = await clientService.findByName(
     clientName
   )
-  if (typeof scope !== 'string') {
-    res.status(400)
-    res.send('Bad Request')
-    return
-  }
-  const requestScopes = scope.split(' ')
+  const requestScopes = (typeof scope === 'string' ? scope : '').split(' ')
   const scopeChecked = (() => {
-    const having = clientScopes.map(({ scope }) => scope)
+    const having = scopes.map(({ scope }) => scope)
     return requestScopes.every((v) => having.includes(v))
   })()
-  if (!client || !scopeChecked || responseType !== 'code') {
-    /* 注) response_typeはcodeのみサポートする */
+  if (
+    !client ||
+    !scopeChecked ||
+    !redirectUris.map(({ uri }) => uri).includes(redirectUri) ||
+    /* response_typeはcodeのみサポートする */
+    responseType !== 'code'
+  ) {
     res.status(400)
     res.send('Bad Request')
     return
   }
   if (!authorize) {
     // 認可ページ表示
+    const appService = AppService.sharedInstance
     const app = await appService.findByClient(client)
     res.render('authorize', {
       app,
@@ -60,18 +60,19 @@ router.get('/authorize', async (req, res) => {
     res.redirect('back')
     return
   }
-  const code = await GenerateAuthorizationCodeUsecase.execute({
-    clientName,
-    user,
-    scopes: requestScopes,
-    redirectUri
-  })
-  const query =
-    code && state
-      ? querystring.stringify({ code, state })
-      : code
-        ? querystring.stringify({ code })
-        : querystring.stringify({ error: 'authorization failed' })
+  const authorizationService = AuthorizationService.sharedInstance
+  const created = await authorizationService.createAuthorizationCode(
+    client,
+    requestScopes,
+    user
+  )
+  if (!created) {
+    const query = querystring.stringify({ error: 'authorization failed' })
+    res.redirect(`${redirectUri}?${query}`)
+    return
+  }
+  const { code } = created
+  const query = querystring.stringify({ code, ...(state ? { state } : {}) })
   res.redirect(`${redirectUri}?${query}`)
 })
 
@@ -102,8 +103,10 @@ router.post('/token', async (req, res) => {
       res.json({ error: 'authorization failed' })
       return
     }
-    const { accessToken, refreshToken } = tokenSet
+    const { accessToken, refreshToken, scope } = tokenSet
     res.json({
+      token_type: 'beare',
+      scope,
       access_token: accessToken.token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN,
       refresh_token: refreshToken.token
@@ -124,9 +127,11 @@ router.post('/token', async (req, res) => {
       res.send('Forbidden')
       return
     }
-    const { token } = result
+    const { accessToken, scope } = result
     res.json({
-      access_token: token,
+      token_type: 'beare',
+      scope,
+      access_token: accessToken.token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN
     })
   } else {
