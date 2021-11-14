@@ -25,20 +25,9 @@ router.get('/authorize', async (req, res) => {
   const { client, scopes, redirectUris } = await clientService.findByName(
     clientName
   )
-  const requestScopes = (typeof scope === 'string' ? scope : '').split(' ')
-  const scopeChecked = (() => {
-    const having = scopes.map(({ scope }) => scope)
-    return requestScopes.every((v) => having.includes(v))
-  })()
-  if (
-    !client ||
-    !scopeChecked ||
-    !redirectUris.map(({ uri }) => uri).includes(redirectUri) ||
-    /* response_typeはcodeのみサポートする */
-    responseType !== 'code'
-  ) {
-    res.status(400)
-    res.send('Bad Request')
+  if (!client) {
+    res.status(403)
+    res.send('Forbidden')
     return
   }
   if (!authorize) {
@@ -55,6 +44,27 @@ router.get('/authorize', async (req, res) => {
     })
     return
   }
+  if (!redirectUris.map(({ uri }) => uri).includes(redirectUri)) {
+    res.status(400)
+    res.send('Invalid redirect_uri')
+    return
+  }
+  const requestScopes = (typeof scope === 'string' ? scope : '').split(' ')
+  const scopeChecked = (() => {
+    const having = scopes.map(({ scope }) => scope)
+    return requestScopes.every((v) => having.includes(v))
+  })()
+  if (!scopeChecked || responseType !== 'code') {
+    const query = querystring.stringify({
+      error: !scopeChecked
+        ? 'invalid_scope'
+        : responseType !== 'code'
+          ? 'unsupported_response_type'
+          : 'invalid_request'
+    })
+    res.redirect(`${redirectUri}?${query}`)
+    return
+  }
   const user = await LoginUsecase.execute({ email, pass })
   if (!user) {
     res.redirect('back')
@@ -67,7 +77,7 @@ router.get('/authorize', async (req, res) => {
     user
   )
   if (!created) {
-    const query = querystring.stringify({ error: 'authorization failed' })
+    const query = querystring.stringify({ error: 'invalid_request' })
     res.redirect(`${redirectUri}?${query}`)
     return
   }
@@ -85,58 +95,53 @@ router.post('/token', async (req, res) => {
     client_secret: clientSecret,
     redirect_uri: redirectUri
   } = req.body
-  if (
-    grantType === 'authorization_code' &&
-    code &&
-    clientName &&
-    clientSecret &&
-    redirectUri
-  ) {
-    const tokenSet = await GenerateAccessTokenUsecase.execute({
+  if (grantType === 'authorization_code') {
+    if (!code || !clientName || !clientSecret || !redirectUri) {
+      res.status(400)
+      res.json({ error: 'invalid_request' })
+      return
+    }
+    const created = await GenerateAccessTokenUsecase.execute({
       clientName,
       clientSecret,
       redirectUri,
       code
     })
-    if (!tokenSet) {
-      res.status(401)
-      res.json({ error: 'authorization failed' })
+    if (!created) {
+      res.status(400)
+      res.json({ error: 'invalid_client' })
       return
     }
-    const { accessToken, refreshToken, scope } = tokenSet
+    const { accessToken, refreshToken } = created
     res.json({
       token_type: 'beare',
-      scope,
       access_token: accessToken.token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN,
       refresh_token: refreshToken.token
     })
-  } else if (
-    grantType === 'refresh_token' &&
-    refreshToken &&
-    clientName &&
-    clientSecret
-  ) {
-    const result = await RefreshAccessTokenUsecase.execute({
-      clientName,
-      clientSecret,
-      refreshToken
-    })
-    if (!result) {
-      res.status(403)
-      res.send('Forbidden')
+  } else if (grantType === 'refresh_token') {
+    if (!refreshToken) {
+      res.status(400)
+      res.json({ error: 'invalid_request' })
       return
     }
-    const { accessToken, scope } = result
+    const refreshed = await RefreshAccessTokenUsecase.execute({
+      refreshToken
+    })
+    if (!refreshed) {
+      res.status(400)
+      res.send('invalid_request')
+      return
+    }
+    const { token } = refreshed
     res.json({
       token_type: 'beare',
-      scope,
-      access_token: accessToken.token,
+      access_token: token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN
     })
   } else {
     res.status(400)
-    res.json({ error: 'unspported grant_type' })
+    res.json({ error: 'unsupported_grant_type' })
   }
 })
 

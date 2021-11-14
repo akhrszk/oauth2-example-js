@@ -16,12 +16,18 @@ class ClientService {
     const client = await models.Client.findOne({
       where: { id: clientId, userId: user.id, appId: app.id }
     })
+    if (!client) {
+      return {}
+    }
     const { scopes, redirectUris } = await this.getScopesAndRedirectUris(client)
     return { client, scopes, redirectUris }
   }
 
   async findByName(name) {
     const client = await models.Client.findOne({ where: { name } })
+    if (!client) {
+      return {}
+    }
     const { scopes, redirectUris } = await this.getScopesAndRedirectUris(client)
     return { client, scopes, redirectUris }
   }
