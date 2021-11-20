@@ -4,14 +4,15 @@ const refreshAccessTokenIfNeed = () => {
   return async (req, res, next) => {
     const refreshToken = req.session.tsubuyakiRefreshToken
     const expires = req.session.tsubuyakiAccessTokenExpires
-    const now = Math.floor(Date.now() / 1000)
-    if (refreshToken && now > expires) {
-      const data = await TsubuyakiService.sharedInstance.refreshAccessToken(
-        refreshToken
-      )
-      console.log('Refreshed access token', data)
+    const data = await TsubuyakiService.sharedInstance.refreshAccessTokenIfNeed(
+      refreshToken,
+      expires
+    )
+    if (data) {
+      console.log('refreshed access_token', data)
       req.session.tsubuyakiAccessToken = data['access_token']
-      req.session.tsubuyakiAccessTokenExpires = Date.now() + data['expires_in']
+      req.session.tsubuyakiAccessTokenExpires =
+        Date.now() + data['expires_in'] * 1000
     }
     next()
   }

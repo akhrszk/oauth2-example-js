@@ -10,10 +10,14 @@ exports.execute = async (params) => {
     return undefined
   }
   return {
-    scope: scopes.map(({ scope }) => scope).join(' '),
     sub: `${accessToken.userId}`, // ユーザーの識別子
-    aud: 'http://tsubuyaki.test/',
-    iss: 'http://nyan.test/',
+    iss: 'http://oauth2.nyan.test/', // tokenの発行者
+    // TODO 決め打ちではなくDBから取得する
+    aud: 'http://tsubuyaki.test/', // tokenの受け手
+    scope: scopes
+      .sort((a, b) => a - b)
+      .map(({ scope }) => scope)
+      .join(' '),
     exp: accessToken.exp, // 有効期限
     iat: accessToken.iat // 発行された時刻
   }

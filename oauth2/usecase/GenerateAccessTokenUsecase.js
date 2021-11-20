@@ -1,18 +1,18 @@
-const ClientService = require('../service/ClientService')
 const AuthorizationService = require('../service/AuthorizationService')
+const ClientService = require('../service/ClientService')
 
 exports.execute = async (params) => {
   const { code, clientName, clientSecret, redirectUri } = params
   const clientService = ClientService.sharedInstance
-  const authorizationService = AuthorizationService.sharedInstance
   const { client, redirectUris } = await clientService.findByName(clientName)
-  const checkClient =
+  const checkedClient =
     client &&
     client.secret === clientSecret &&
     redirectUris.map(({ uri }) => uri).includes(redirectUri)
-  if (!checkClient) {
+  if (!checkedClient) {
     return undefined
   }
+  const authorizationService = AuthorizationService.sharedInstance
   const authorizationCode = await authorizationService.findAuthorizationCode(
     client,
     code
@@ -23,5 +23,5 @@ exports.execute = async (params) => {
   const { accessToken, refreshToken } =
     await authorizationService.createAccessToken(client, authorizationCode)
   await authorizationService.useAuthorizationCode(authorizationCode)
-  return { accessToken, refreshToken }
+  return { accessToken, refreshToken, scopes: authorizationCode.Scopes }
 }

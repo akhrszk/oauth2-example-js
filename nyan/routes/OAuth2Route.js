@@ -11,8 +11,9 @@ router.get('/callback', async (req, res) => {
   }
   const tsubuyakiService = TsubuyakiService.sharedInstance
   const data = await tsubuyakiService.getAccessToken(code)
+  console.log('access_token', data)
   const user = await tsubuyakiService.getMe(data['access_token'])
-  console.log(user)
+  console.log('user', user)
   req.session.tsubuyakiAccessToken = data['access_token']
   req.session.tsubuyakiRefreshToken = data['refresh_token']
   // 有効期限はjsで取り扱いやすいようにミリ秒で持つ

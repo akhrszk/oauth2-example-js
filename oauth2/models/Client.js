@@ -15,10 +15,6 @@ module.exports = (sequelize) => {
       appId: {
         type: DataTypes.INTEGER,
         allowNull: false
-      },
-      userId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
       }
     },
     {

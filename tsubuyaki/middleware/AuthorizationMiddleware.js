@@ -6,8 +6,7 @@ const authorization = (options) => {
   const requiredScopes = options?.required
   return async (req, res, next) => {
     const { token } = ((authorization) => {
-      const tuple = authorization?.split(' ') ?? []
-      const kv = new Map([tuple])
+      const kv = new Map([authorization?.split(' ') ?? []])
       return { token: kv.get('Bearer') }
     })(req.headers['authorization'])
     if (!!requiredScopes && !token) {

@@ -45,7 +45,7 @@ router.post('/create', authentication(), async (req, res) => {
     return
   }
   const app = await appService.create(name, user)
-  await clientService.create(app, user)
+  await clientService.create(app)
   res.redirect('/')
 })
 
@@ -105,12 +105,12 @@ router.post(
     const appService = AppService.sharedInstance
     const clientService = ClientService.sharedInstance
     const app = await appService.findById(appId)
-    if (!app) {
+    if (!app || app.userId !== user.id) {
       res.status(404)
       res.send('Not Found')
       return
     }
-    const { client } = await clientService.find(user, app, clientId)
+    const { client } = await clientService.find(app, clientId)
     if (!client) {
       res.status(404)
       res.send('Not Found')

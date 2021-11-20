@@ -112,32 +112,42 @@ router.post('/token', async (req, res) => {
       res.json({ error: 'invalid_client' })
       return
     }
-    const { accessToken, refreshToken } = created
+    const { accessToken, refreshToken, scopes } = created
     res.json({
       token_type: 'beare',
       access_token: accessToken.token,
       expires_in: ACCESS_TOKEN_EXPIRES_IN,
-      refresh_token: refreshToken.token
+      refresh_token: refreshToken.token,
+      scope: scopes
+        .sort((a, b) => a - b)
+        .map(({ scope }) => scope)
+        .join(' ')
     })
   } else if (grantType === 'refresh_token') {
-    if (!refreshToken) {
+    if (!refreshToken || !clientName || !clientSecret) {
       res.status(400)
       res.json({ error: 'invalid_request' })
       return
     }
     const refreshed = await RefreshAccessTokenUsecase.execute({
-      refreshToken
+      refreshToken,
+      clientName,
+      clientSecret
     })
     if (!refreshed) {
       res.status(400)
       res.send('invalid_request')
       return
     }
-    const { token } = refreshed
+    const { accessToken, scopes } = refreshed
     res.json({
       token_type: 'beare',
-      access_token: token,
-      expires_in: ACCESS_TOKEN_EXPIRES_IN
+      access_token: accessToken.token,
+      expires_in: ACCESS_TOKEN_EXPIRES_IN,
+      scope: scopes
+        .sort((a, b) => a - b)
+        .map(({ scope }) => scope)
+        .join(' ')
     })
   } else {
     res.status(400)

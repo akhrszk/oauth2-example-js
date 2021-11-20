@@ -60,19 +60,9 @@ class AuthorizationService {
   }
 
   async findRefreshToken(token) {
-    const refreshToken = await this.models.RefreshToken.findOne({
+    return this.models.RefreshToken.findOne({
       where: { token }
     })
-    if (!refreshToken) {
-      return {}
-    }
-    const { Scopes: scopes } = await this.models.AuthorizationCode.findByPk(
-      refreshToken.authorizationCodeId,
-      {
-        include: [this.models.Scope]
-      }
-    )
-    return { refreshToken, scopes }
   }
 
   async createAccessToken(client, authorizationCode) {
@@ -95,13 +85,19 @@ class AuthorizationService {
 
   async refreshAccessToken(refreshToken) {
     const { clientId, userId, authorizationCodeId } = refreshToken
-    const accessToken = models.AccessToken.create({
+    const accessToken = await models.AccessToken.create({
       clientId,
       userId,
       authorizationCodeId,
       token: generateAccessToken()
     })
-    return accessToken
+    const { Scopes: scopes } = await models.AuthorizationCode.findByPk(
+      authorizationCodeId,
+      {
+        include: [this.models.Scope]
+      }
+    )
+    return { accessToken, scopes }
   }
 
   revokeAccessToken(token) {

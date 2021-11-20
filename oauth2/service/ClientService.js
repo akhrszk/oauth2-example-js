@@ -12,9 +12,9 @@ class ClientService {
     })
   }
 
-  async find(user, app, clientId) {
+  async find(app, clientId) {
     const client = await models.Client.findOne({
-      where: { id: clientId, userId: user.id, appId: app.id }
+      where: { id: clientId, appId: app.id }
     })
     if (!client) {
       return {}
@@ -42,12 +42,11 @@ class ClientService {
     return { scopes: app.Scopes, redirectUris: app.RedirectUris }
   }
 
-  create(app, user) {
+  create(app) {
     return models.Client.create({
       name: randomstring.generate(25),
       secret: randomstring.generate(50),
-      appId: app.id,
-      userId: user.id
+      appId: app.id
     })
   }
 
