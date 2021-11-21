@@ -1,0 +1,69 @@
+version: "3.8"
+services:
+  nyan:
+    image: node:14.18
+    ports:
+      - 3000:3000
+    working_dir: /app
+    volumes:
+      - ./nyan:/app
+    depends_on:
+      - db
+    environment:
+      - PORT=3000
+      - TSUBUYAKI_CLIENT_ID=
+      - TSUBUYAKI_CLIENT_SECRET=
+      - TSUBUYAKI_REDIRECT_URI=
+    command:
+      - /bin/sh
+      - -c
+      - |
+        yarn install
+        yarn start
+  tsubuyaki:
+    image: node:14.18
+    ports:
+      - 9000:3000
+    working_dir: /app
+    volumes:
+      - ./tsubuyaki:/app
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+    command:
+      - /bin/sh
+      - -c
+      - |
+        yarn install
+        yarn start
+  oauth2:
+    image: node:14.18
+    ports:
+      - 9001:3000
+    working_dir: /app
+    volumes:
+      - ./oauth2:/app
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+    command:
+      - /bin/sh
+      - -c
+      - |
+        yarn install
+        yarn start
+  db:
+    image: mysql:5.7.35
+    ports:
+      - 3306:3306
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=tsubuyaki
+    command:
+      - --skip-character-set-client-handshake
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
