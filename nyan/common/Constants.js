@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+const settings = {
   PORT: process.env.PORT ?? 3000,
   SESSION_SECRET: process.env.SESSION_SECRET ?? 'secret',
   TSUBUYAKI_OAUTH_LOGIN_URL:
@@ -11,4 +11,12 @@ module.exports = Object.freeze({
   TSUBUYAKI_CLIENT_ID: process.env.TSUBUYAKI_CLIENT_ID,
   TSUBUYAKI_CLIENT_SECRET: process.env.TSUBUYAKI_CLIENT_SECRET,
   TSUBUYAKI_REDIRECT_URI: process.env.TSUBUYAKI_REDIRECT_URI
+}
+
+module.exports = Object.freeze({
+  ...settings,
+  IS_SET_CLIENT_CREDENTIALS:
+    !!settings.TSUBUYAKI_CLIENT_ID &&
+    !!settings.TSUBUYAKI_CLIENT_SECRET &&
+    !!settings.TSUBUYAKI_REDIRECT_URI
 })
